@@ -6,46 +6,46 @@
 alias_names=("e" "esudo") # Add your alias names here
 # Loop through each alias to unalias them
 for alias_name in "${alias_names[@]}"; do
-	# Check if the alias exists
-	if alias "$alias_name" &>/dev/null; then
-		# If the alias exists, unalias it
-		unalias "$alias_name"
-	fi
+  # Check if the alias exists
+  if alias "$alias_name" &>/dev/null; then
+    # If the alias exists, unalias it
+    unalias "$alias_name"
+  fi
 done
 
 # -- e --: edit in $EDITOR
 e() {
-	if [ ! "$1" ]; then
-		fzf --multi --bind "enter:become($EDITOR {})"
-		return
-	fi
-	if [ -e "$1" ]; then
-		"$EDITOR" "$1"
-	else
-		dir=$(zoxide query "$1")
-		if [ -d "$dir" ]; then
-			cd "$dir" && fzf --multi --bind "enter:become($EDITOR {})"
-		else
-			$EDITOR "$1"
-		fi
-	fi
+  if [ ! "$1" ]; then
+    fzf --multi --bind "enter:become($EDITOR {})"
+    return
+  fi
+  if [ -e "$1" ]; then
+    "$EDITOR" "$1"
+  else
+    dir=$(zoxide query "$1")
+    if [ -d "$dir" ]; then
+      cd "$dir" && fzf --multi --bind "enter:become($EDITOR {})"
+    else
+      $EDITOR "$1"
+    fi
+  fi
 }
 
 esudo() {
-	if [ ! "$1" ]; then
-		fzf --multi --bind "enter:become(sudo -E $EDITOR {})"
-		return
-	fi
-	if [ -e "$1" ]; then
-		sudo -E $EDITOR "$1"
-	else
-		dir=$(zoxide query "$1")
-		if [ -d "$dir"]; then
-			cd "$dir" && fzf --multi --bind "enter:become(sudo -E $EDITOR {})"
-		else
-			sudo -E "$EDITOR" "$1"
-		fi
-	fi
+  if [ ! "$1" ]; then
+    fzf --multi --bind "enter:become(sudo -E $EDITOR {})"
+    return
+  fi
+  if [ -e "$1" ]; then
+    sudo -E $EDITOR "$1"
+  else
+    dir=$(zoxide query "$1")
+    if [ -d "$dir"]; then
+      cd "$dir" && fzf --multi --bind "enter:become(sudo -E $EDITOR {})"
+    else
+      sudo -E "$EDITOR" "$1"
+    fi
+  fi
 }
 
 # nvim/vim alias
@@ -68,47 +68,53 @@ esudo() {
 # Find file
 
 # Find in file
-fif() {
-	dir="${1:-.}"
-	cd "$dir"
-	RG_DEFAULT_COMMAND="rg -i -l --no-ignore-vcs --no-follow -g '!{.git,node_modules}'"
-	result=$(FZF_DEFAULT_COMMAND="rg --files" fzf \
-		-m \
-		-e \
-		--ansi \
-		--phony \
-		--bind "change:reload:$RG_DEFAULT_COMMAND {q} || true" \
-		--preview "rg -i --pretty --context 5 --line-number {q} {}" | cut -d":" -f1,2)
-	[[ -n "$result" ]] && "$EDITOR" "$result" || return
+rgf() {
+  dir="${1:-.}"
+  cd "$dir"
+  RG_DEFAULT_COMMAND="rg -i -l --no-ignore-vcs --no-follow -g '!{.git,node_modules}'"
+  FZF_DEFAULT_COMMAND="rg --files" fzf \
+    -m \
+    -e \
+    --ansi \
+    --phony \
+    --bind "change:reload:$RG_DEFAULT_COMMAND {q} || true" \
+    --preview "rg -i --pretty --context 5 --line-number {q} {}" | cut -d":" -f1,2
+}
+
+rgfe() {
+  result=$(rgf "$@")
+  [[ -n "$result" ]] && "$EDITOR" "$result" || return
 }
 
 # File finder
 ff() {
-	FZF_DEFAULT_COMMAND="fd \"$PATTERN\" --type f \
+  FZF_DEFAULT_COMMAND="fd \"$PATTERN\" --type f \
      --exclude node_modules \
      --exclude .git \
-     -H $ROOT_PATH"
-	result=$(fzf --preview-window='right:60%:nohidden' \
-		--preview "bat {};" \
-		--bind 'enter:execute(echo {};)+abort')
-	[[ -n "$result" ]] && "$EDITOR" "$result" || return
+     -H $ROOT_PATH" fzf --preview-window='right:60%:nohidden' \
+    --preview "bat {};"
+}
+
+ffe() {
+  result=$(ff "$@")
+  [[ -n "$result" ]] && "$EDITOR" "$result" || return
 }
 
 # Display audio visualizer with glava
 # while choosing/change glava backend source
 viz() {
-	source=$(pactl list sinks short | awk '{print $2}' | fzf)
-	sed -i "s/^\(#request setsource\) \"[^\"]*\"/\1 \"$source.monitor\"/" ~/.config/glava/rc.glsl
-	pkill glava &>/dev/null
-	glava --desktop &>/dev/null &
-	disown
+  source=$(pactl list sinks short | awk '{print $2}' | fzf)
+  sed -i "s/^\(#request setsource\) \"[^\"]*\"/\1 \"$source.monitor\"/" ~/.config/glava/rc.glsl
+  pkill glava &>/dev/null
+  glava --desktop &>/dev/null &
+  disown
 }
 
 calc() {
-	rofi -show calc -modi calc
+  rofi -show calc -modi calc
 }
 
 sysinfo() {
-	neofetch --ascii $HOME/.config/neofetch/arch-ascii-2
-	task
+  neofetch --ascii $HOME/.config/neofetch/arch-ascii-2
+  task
 }
