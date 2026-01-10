@@ -40,7 +40,7 @@ esudo() {
     sudo -E $EDITOR "$1"
   else
     dir=$(zoxide query "$1")
-    if [ -d "$dir"]; then
+    if [ -d "$dir" ]; then
       cd "$dir" && fzf --multi --bind "enter:become(sudo -E $EDITOR {})"
     else
       sudo -E "$EDITOR" "$1"
@@ -65,20 +65,17 @@ esudo() {
 # 	fi
 # }
 
-# Find file
-
-# Find in file
+# Find in file using ripgrep
 rgf() {
-  echo "$FZF_DEFAULT_OPTS"
   ROOT_PATH="${1:-.}"
-  RG_DEFAULT_COMMAND="rg -i -l --no-ignore-vcs --no-follow -g '!{.git,node_modules}'"
+  RG_DEFAULT_COMMAND="rg -l --smart-case --hidden --no-follow -g '!{.git,node_modules}'"
   FZF_DEFAULT_COMMAND="rg --files $ROOT_PATH" fzf \
     -m \
     -e \
     --ansi \
     --phony \
     --bind "change:reload:$RG_DEFAULT_COMMAND {q} || true" \
-    --preview "rg -i --pretty --context 5 --line-number {q} {}" | cut -d":" -f1,2
+    --preview "batgrep --color --context 5 {q} {1}" | cut -d":" -f1,2
 }
 
 rgfe() {
@@ -86,18 +83,8 @@ rgfe() {
   [[ -n "$result" ]] && "$EDITOR" "$result" || return
 }
 
-# File finder
 ff() {
-  ROOT_PATH=${1:-.}
-  FZF_DEFAULT_COMMAND="fd \"$PATTERN\" --type f \
-     --exclude node_modules \
-     --exclude .git \
-     -H $ROOT_PATH" fzf --preview-window='right:50%:nohidden' \
-    --preview "bat {};"
-}
-
-ffe() {
-  result=$(ff "$@")
+  result=$(fzf "$@")
   [[ -n "$result" ]] && "$EDITOR" "$result" || return
 }
 
@@ -116,6 +103,6 @@ calc() {
 }
 
 sysinfo() {
-  neofetch --ascii $HOME/.config/neofetch/arch-ascii-2
-  task
+  neofetch --ascii "$HOME/.config/neofetch/arch-ascii-2"
+  task 2>/dev/null
 }
