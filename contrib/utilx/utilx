@@ -69,10 +69,10 @@ esudo() {
 
 # Find in file
 rgf() {
-  dir="${1:-.}"
-  cd "$dir"
+  echo "$FZF_DEFAULT_OPTS"
+  ROOT_PATH="${1:-.}"
   RG_DEFAULT_COMMAND="rg -i -l --no-ignore-vcs --no-follow -g '!{.git,node_modules}'"
-  FZF_DEFAULT_COMMAND="rg --files" fzf \
+  FZF_DEFAULT_COMMAND="rg --files $ROOT_PATH" fzf \
     -m \
     -e \
     --ansi \
@@ -88,10 +88,11 @@ rgfe() {
 
 # File finder
 ff() {
+  ROOT_PATH=${1:-.}
   FZF_DEFAULT_COMMAND="fd \"$PATTERN\" --type f \
      --exclude node_modules \
      --exclude .git \
-     -H $ROOT_PATH" fzf --preview-window='right:60%:nohidden' \
+     -H $ROOT_PATH" fzf --preview-window='right:50%:nohidden' \
     --preview "bat {};"
 }
 
