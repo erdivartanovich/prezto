@@ -1,2 +1,2 @@
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[ -f ~/.config/fzf/.fzf.zsh ] && source ~/.config/fzf/.fzf.zsh
