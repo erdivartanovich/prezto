@@ -88,6 +88,26 @@ ff() {
   [[ -n "$result" ]] && "$EDITOR" "$result" || return
 }
 
+function y() {
+  local tmp
+  tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+  yazi "$@" --cwd-file="$tmp"
+  if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+    builtin cd -- "$cwd" || exit
+  fi
+  rm -f -- "$tmp"
+}
+
+function yf() {
+  local tmp
+  tmp="$(mktemp -t "yazi-chooser.XXXXXX")"
+  yazi "$@" --chooser-file="$tmp"
+  if f="$(command cat -- "$tmp")" && [ -n "$f" ]; then
+    echo "$f"
+  fi
+  rm -f -- "$tmp"
+}
+
 # Display audio visualizer with glava
 # while choosing/change glava backend source
 viz() {
