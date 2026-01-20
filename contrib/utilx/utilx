@@ -75,6 +75,7 @@ rgf() {
     --ansi \
     --phony \
     --bind "change:reload:$RG_DEFAULT_COMMAND {q} || true" \
+    --preview-window='bottom,60%,nohidden' \
     --preview "batgrep --color --context 5 {q} {1}" | cut -d":" -f1,2
 }
 
