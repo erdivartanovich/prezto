@@ -127,3 +127,7 @@ sysinfo() {
   neofetch --ascii "$HOME/.config/neofetch/arch-ascii-2"
   task 2>/dev/null
 }
+
+tmp() {
+  f=$(mktemp) && nvim "$f"
+}
