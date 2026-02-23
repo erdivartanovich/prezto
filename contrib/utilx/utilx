@@ -131,3 +131,11 @@ sysinfo() {
 tmp() {
   f=$(mktemp) && nvim "$f"
 }
+
+typefm() {
+  for i in $(seq 1 10000); do
+    xdotool key 0
+    # Random between 50ms and 300ms
+    sleep "0.$((50 + RANDOM % 250))"
+  done
+}
